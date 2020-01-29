@@ -1,13 +1,14 @@
-from psychopy import event, visual, core, sound
+from psychopy import event, visual, core, sound, prefs
 import psychtoolbox as ptb
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+
 flag_start = False
 possiblities = [-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
-li = 10*[-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
+li = 3*[-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
 random.shuffle(li)
 currDir = os.getcwd()
 dic={}
@@ -52,7 +53,7 @@ flash1 = visual.GratingStim(win=mywin, mask='circle', size=3, pos=[0,0], sf=0)
 flash2 = visual.GratingStim(win=mywin, mask='circle', size=2, pos=[0,3], sf=0)
 # creating sound stimuli
 path = currDir+"\\bell.wav" 
-mySound = sound.Sound(path,secs=0.5,volume=1)
+mySound = sound.Sound(path)
 
 message1 = visual.TextStim(win=mywin, pos=[7,0], text='Hit S to start, Q/Esc to Abort!')
 message2 = visual.TextStim(win=mywin, pos=[7,2], text='Press 1-Bell before Flash')
@@ -89,8 +90,7 @@ while True:
 		# flash1.draw()
 		# core.wait(-diffTime)
 		# mywin.flip()
-		now = ptb.GetSecs()
-		mySound.play(when=now)
+		mySound.play()
 		core.wait(-diffTime) 
 		flash1.draw()
 		mywin.flip()
@@ -107,8 +107,7 @@ while True:
 		flash1.draw()
 		mywin.flip()
 		core.wait(diffTime)
-		now = ptb.GetSecs()
-		mySound.play(when=now)
+		mySound.play()
 
 	else:
 		# print(diffTime)
@@ -117,8 +116,7 @@ while True:
 		# mywin.flip()
 
 		print(diffTime)
-		now = ptb.GetSecs()
-		mySound.play(when=now)
+		mySound.play()
 		flash1.draw()
 		mywin.flip()
 	
@@ -128,7 +126,7 @@ while True:
 	mywin.flip()
 	if(ind == len(li)):
 		break
-	core.wait(1)
+	core.wait(1.5)
 
 print("Experiment completed!!")
 mywin.close()
