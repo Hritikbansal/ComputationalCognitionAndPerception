@@ -1,20 +1,20 @@
-from psychopy import event, visual, core, sound, prefs
+from psychopy import event, visual, core, sound
 import psychtoolbox as ptb
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import os.path
+import argparse
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description='Perception Test'
+    )
+    parser.add_argument('--audiopath', type=str, metavar='PATH', required=True,
+                        help='audio filename path')
 
-flag_start = False
-possiblities = [-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
-li = 3*[-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
-random.shuffle(li)
-currDir = os.getcwd()
-dic={}
-for h in possiblities:
-	if h not in dic:
-		dic[h]=0
+    return parser.parse_args()
 
 def takeResponse(flag=0,time=0):
 	thisResp = None
@@ -27,15 +27,15 @@ def takeResponse(flag=0,time=0):
 			elif thisKey in ['q', 'escape']:
 				event.clearEvents()
 				return 1  # abort experiment
-			elif thisKey == '1' and flag:
+			elif thisKey == 'left' and flag:
 				if time<0:
 					dic[time]+=1
 				thisResp = 1
-			elif thisKey == '3' and flag:
+			elif thisKey == 'right' and flag:
 				if time>0:
 					dic[time]+=1
 				thisResp = 1
-			elif thisKey == '2' and flag:
+			elif ((thisKey == 'up' or thisKey == 'down') and flag):
 				if time==0:
 					dic[time]+=1
 				thisResp = 1
@@ -45,6 +45,16 @@ def takeResponse(flag=0,time=0):
 
 	return 0
 
+possiblities = [-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
+li = 1*[-0.3,-0.2,-0.1,0,0.1,0.2,0.3]
+
+random.shuffle(li)
+dic={}
+for h in possiblities:
+	if h not in dic:
+		dic[h]=0
+
+
 #create a window
 mywin = visual.Window([800,600],monitor="testMonitor", units="deg")
 
@@ -52,14 +62,24 @@ mywin = visual.Window([800,600],monitor="testMonitor", units="deg")
 flash1 = visual.GratingStim(win=mywin, mask='circle', size=3, pos=[0,0], sf=0)
 flash2 = visual.GratingStim(win=mywin, mask='circle', size=2, pos=[0,3], sf=0)
 # creating sound stimuli
-path = currDir+"\\bell.wav" 
-mySound = sound.Sound(path)
+
+args = parse_arguments()
+audioPath = args.audiopath
+
+if not os.path.exists(audioPath):
+	print("SOUND FILE NOT FOUND")
+	print("CHECK THE PATH PLSS")
+	print("EXITING!!!")
+
+mySound = sound.Sound(audioPath,secs=0.3)
 
 message1 = visual.TextStim(win=mywin, pos=[7,0], text='Hit S to start, Q/Esc to Abort!')
-message2 = visual.TextStim(win=mywin, pos=[7,2], text='Press 1-Bell before Flash')
-message3 = visual.TextStim(win=mywin, pos=[7,4], text='Press 2-Bell same as Flash')
-message4 = visual.TextStim(win=mywin, pos=[7,6], text='Press 3-Bell after Flash')
-message5 = visual.TextStim(win=mywin, pos=[7,0], text='Press C to continue')
+
+message2 = visual.TextStim(win=mywin, pos=[7,2], text='Press ← B before F')
+message3 = visual.TextStim(win=mywin, pos=[7,4], text='Press → F before B')
+message4 = visual.TextStim(win=mywin, pos=[7,6], text='Press ↑ or ↓ B F same')
+message5 = visual.TextStim(win=mywin, pos=[7,-2], text='Press C to continue')
+ 
 #before means bell before 
 globalClock = core.Clock()
 thisResp = None
@@ -71,6 +91,7 @@ mywin.flip()
 if(takeResponse(flag=0)):
 	core.quit()
 	event.clearEvents()
+
 mywin.flip()
 ind = 0
 message2.draw()
@@ -83,39 +104,16 @@ while True:
 	diffTime = li[ind]
 	ind+=1
 	if(diffTime<0):
-		print(diffTime)
-		# flash2.draw()
-		# mywin.flip()
-		# flash2.draw()
-		# flash1.draw()
-		# core.wait(-diffTime)
-		# mywin.flip()
 		mySound.play()
 		core.wait(-diffTime) 
 		flash1.draw()
 		mywin.flip()
 	elif(diffTime>0):
-		# print(diffTime)
-		# flash1.draw()
-		# mywin.flip()
-		# flash1.draw()
-		# flash2.draw()
-		# core.wait(diffTime)
-		# mywin.flip()
-
-		print(diffTime)
 		flash1.draw()
 		mywin.flip()
 		core.wait(diffTime)
 		mySound.play()
-
 	else:
-		# print(diffTime)
-		# flash1.draw()
-		# flash2.draw()
-		# mywin.flip()
-
-		print(diffTime)
 		mySound.play()
 		flash1.draw()
 		mywin.flip()
@@ -130,30 +128,15 @@ while True:
 
 print("Experiment completed!!")
 mywin.close()
+
+#plotter
 y = []
+factor = len(li)/len(possiblities)
 for h in possiblities:
-	y.append(dic[h])
-
-plt.plot(possiblities,y)
+	y.append((100*dic[h])/factor)
+x = [1000*j for j in possiblities]
+plt.plot(x,y)
+plt.title("Result")
+plt.xlabel("Time difference between bell and flash(ms)")
+plt.ylabel("Accuracy(%)")
 plt.show()
-
-
-
-
-
-
-
-
-
-# if len(event.getKeys())>0:
-# 	break
-# event.clearEvents()
-
-#mywin.close()
-
-# now = ptb.GetSecs()
-# mySound.play(when=now+0.5)  
-
-# list of possible time differences between flash and bell
-# time units is ms here
-#print(li)
