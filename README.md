@@ -1,4 +1,4 @@
-# ComputationalCognitionAndPerception
+# Computational Cognition and Perception under Prof. Tapan Gandhi @ IITDelhi
 ELL788
 
 Dependencies:
