@@ -18,5 +18,5 @@ that could be performed on the subjects to understand their
 cognition and perception.
 
 Term paper is a survey paper upto publishable standards, which 
-covers recent advancements in the field of Computational Neuroscience.
+covers recent advancements in the field of Computational Neuroscience and AI.
 ```
